@@ -220,7 +220,48 @@ async function localCommand(command) {
     }
     return true;
   }
+// Live AQI lookup
+if (/\b(aqi|air quality|air pollution)\b/.test(text)) {
+  let city = "Kuala Lumpur";
 
+  if (text.includes("shah alam")) {
+    city = "Shah Alam";
+  }
+
+  try {
+    const response = await fetch(
+      "https://jarvis-backend-v3.onrender.com/aqi?city=" +
+      encodeURIComponent(city)
+    );
+
+    if (!response.ok) {
+      throw new Error("AQI service returned HTTP " + response.status);
+    }
+
+    const data = await response.json();
+
+    if (data.us_aqi == null) {
+      replyLocally(
+        "I could not retrieve a current AQI reading for " + city + ", sir."
+      );
+    } else {
+      replyLocally(
+        "The latest available US AQI for " + city +
+        " is " + data.us_aqi +
+        ". PM2.5 is " + data.pm2_5 +
+        " micrograms per cubic metre. Updated at " +
+        data.updated + ", sir."
+      );
+    }
+  } catch (error) {
+    console.error("AQI error:", error);
+    replyLocally(
+      "I cannot retrieve the air quality reading at present, sir."
+    );
+  }
+
+  return true;
+}
   if (/^(initialize|initialise|start|initialize systems|initialise systems|start systems)$/.test(text)) {
     coreStatus.textContent = "Local interface checks complete.";
     replyLocally("Local interface systems are operational, sir. I will test the AI connection now.");

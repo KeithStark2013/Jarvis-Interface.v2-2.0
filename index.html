@@ -262,32 +262,7 @@ if (/\b(aqi|air quality|air pollution)\b/.test(text)) {
 
   return true;
 }
-  if (/^(initialize|initialise|start|initialize systems|initialise systems|start systems)$/.test(text)) {
-    coreStatus.textContent = "Local interface checks complete.";
-    replyLocally("Local interface systems are operational, sir. I will test the AI connection now.");
-    testBackend();
-    return true;
-  }
-
-  if (/^(diagnostics|run diagnostics|system diagnostics)$/.test(text)) {
-    runDiagnostics();
-    return true;
-  }
-
-  if (/^(go to sleep|stand by|standby)$/.test(text)) {
-    coreStatus.textContent = "Standby mode requested.";
-    replyLocally("Entering standby, sir. You can contact me again at any time.");
-    return true;
-  }
-
-  if (/^(help|commands|what can you do)$/.test(text)) {
-    replyLocally("You can ask me questions, type a message, or use voice input. Local commands include checking the time, running diagnostics, initialising systems, and standby, sir.");
-    return true;
-  }
-
-  return false;
-}
-
+ 
   if (/^(initialize|initialise|start|initialize systems|initialise systems|start systems)$/.test(text)) {
     coreStatus.textContent = "Local interface checks complete.";
     replyLocally("Local interface systems are operational, sir. I will test the AI connection now.");

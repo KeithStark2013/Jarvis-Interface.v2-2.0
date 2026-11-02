@@ -197,12 +197,56 @@ async function askAI(message) {
   }
 }
 
-function localCommand(command) {
+
+async function localCommand(command) {
   const text = command.toLowerCase().trim().replace(/[.!?]+$/g, "");
-  if (/^(what time is it|what's the time|time|check time)$/.test(text)) {
-    replyLocally("The time is " + new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) + ", sir.");
+
+  // Real Malaysia time from the backend
+  if (/\b(time|current time|date and time)\b/.test(text)) {
+    try {
+      const response = await fetch(
+        "https://jarvis-backend-v3.onrender.com/time"
+      );
+
+      if (!response.ok) throw new Error("Time service unavailable");
+
+      const data = await response.json();
+
+      replyLocally(
+        "The current time in Malaysia is " + data.time + ", sir."
+      );
+    } catch (error) {
+      replyLocally("I cannot retrieve the Malaysian time at present, sir.");
+    }
     return true;
   }
+
+  if (/^(initialize|initialise|start|initialize systems|initialise systems|start systems)$/.test(text)) {
+    coreStatus.textContent = "Local interface checks complete.";
+    replyLocally("Local interface systems are operational, sir. I will test the AI connection now.");
+    testBackend();
+    return true;
+  }
+
+  if (/^(diagnostics|run diagnostics|system diagnostics)$/.test(text)) {
+    runDiagnostics();
+    return true;
+  }
+
+  if (/^(go to sleep|stand by|standby)$/.test(text)) {
+    coreStatus.textContent = "Standby mode requested.";
+    replyLocally("Entering standby, sir. You can contact me again at any time.");
+    return true;
+  }
+
+  if (/^(help|commands|what can you do)$/.test(text)) {
+    replyLocally("You can ask me questions, type a message, or use voice input. Local commands include checking the time, running diagnostics, initialising systems, and standby, sir.");
+    return true;
+  }
+
+  return false;
+}
+
   if (/^(initialize|initialise|start|initialize systems|initialise systems|start systems)$/.test(text)) {
     coreStatus.textContent = "Local interface checks complete.";
     replyLocally("Local interface systems are operational, sir. I will test the AI connection now.");
@@ -228,10 +272,9 @@ function localCommand(command) {
 async function sendMessage(message) {
   const cleaned = message.trim();
   if (!cleaned) return;
-  if (localCommand(cleaned)) return;
+  if (await localCommand(cleaned)) return;
   await askAI(cleaned);
 }
-
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const message = input.value;
